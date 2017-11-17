@@ -1,3 +1,8 @@
 ./node_modules
 ./build
 ./.vscode
+build/
+
+node_modules/nan/
+
+\.vscode/
