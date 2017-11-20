@@ -8,6 +8,27 @@
 
 namespace addon {
 
+// The handle that controls the current listening session.
+pcap_t *handle;
+
+// The device that will be listened on.
+char *device;
+
+// Any error message from libpcap.
+char err[PCAP_ERRBUF_SIZE];
+
+// The packet filter to compile.
+std::string filterString;
+
+// The compiled filter.
+struct bpf_program filter;
+
+// The network mask of the device.
+bpf_u_int32 netmask;
+
+// The ipv4 address of the device.
+bpf_u_int32 ip;
+
 // Executes the user defined callback.
 void runCallback();
 
@@ -42,9 +63,6 @@ NAN_METHOD(beginSniffing);
 
 // Closes the device being sniffed on.
 NAN_METHOD(closeDevice);
-
-// Nodejs NAN initialization method.
-NAN_METHOD(Init);
 
 }  // namespace addon
 
