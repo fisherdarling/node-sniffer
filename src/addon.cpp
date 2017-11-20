@@ -1,5 +1,7 @@
+#include <addon.h>
 #include <nan.h>
 #include <node.h>
+#include <pcap.h>
 #include <iostream>
 
 using namespace v8;
