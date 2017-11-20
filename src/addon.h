@@ -52,7 +52,7 @@ NAN_METHOD(setDevice);
 void initDevice();
 
 // Returns the name, ip, and netmask of the set device.
-NAN_METHOD(getDeviceProperties);
+NAN_METHOD(getDevProperties);
 
 // Compiles and opens the chosen device. If no device is given, opens the
 // first available system device.
@@ -63,6 +63,8 @@ NAN_METHOD(beginSniffing);
 
 // Closes the device being sniffed on.
 NAN_METHOD(closeDevice);
+
+NAN_MODULE_INIT(Init);
 
 }  // namespace addon
 
