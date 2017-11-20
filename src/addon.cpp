@@ -1,7 +1,7 @@
-#include <addon.h>
+// #include <addon.h>
 #include <nan.h>
 #include <node.h>
-#include <pcap.h>
+// #include <pcap.h>
 #include <iostream>
 
 using namespace v8;
@@ -11,19 +11,11 @@ Callback *cb;
 
 namespace addon {
 
-// NAN_METHOD(setCallback) {
-//   // Get the function.
-//   Local<Function> function = info[0].As<Function>();
-
-//   // Set the callback.
-//   cb = new Callback(function);
-// }
-
 // TODO: Implement runCallback to return packet data.
-// void runCallback(const struct pcap_pkthdr *header, const u_char *packet);
+void runCallback(const struct pcap_pkthdr *header, const u_char *packet);
 
 // Executes the user-defined callback. Currently implemented is a skeleton
-// function that returns random data. Help debug js calling.
+// function that returns random data. Helps debug js calling.
 void runCallback() {
   u_int size = 32;
   char *buff = new char[32];
@@ -86,30 +78,23 @@ NAN_METHOD(beginSniffing) {}
 // in order to sniff on the device the next time.
 NAN_METHOD(closeDevice) {}
 
-// NAN_METHOD(runCallback) {
-//   const unsigned int argc = 0;  // Arg count.
-//   Local<Value> argv[] = {};     // Arg values.
+NAN_METHOD(runCallbackBuffer) {
+  u_int size = 32;
+  char *buff = new char[32];
 
-//   cb->Call(argc, argv);
-// }
+  for (size_t i = 0; i < size; i++) buff[i] = rand() % 256;
 
-// NAN_METHOD(runCallbackBuffer) {
-//   u_int size = 32;
-//   char *buff = new char[32];
+  Nan::MaybeLocal<v8::Object> buffer = Nan::NewBuffer(buff, 32);
 
-//   for (size_t i = 0; i < size; i++) buff[i] = rand() % 256;
+  Nan::MaybeLocal<v8::Object> *bufferptr = &buffer;
 
-//   Nan::MaybeLocal<v8::Object> buffer = Nan::NewBuffer(buff, 32);
+  std::cout << bufferptr << std::endl;
 
-//   Nan::MaybeLocal<v8::Object> *bufferptr = &buffer;
+  const unsigned int argc = 1;                      // Arg count.
+  Local<Value> argv[] = {buffer.ToLocalChecked()};  // Arg values.
 
-//   std::cout << bufferptr << std::endl;
-
-//   const unsigned int argc = 1;                      // Arg count.
-//   Local<Value> argv[] = {buffer.ToLocalChecked()};  // Arg values.
-
-//   cb->Call(argc, argv);
-// }
+  cb->Call(argc, argv);
+}
 
 NAN_MODULE_INIT(Init) {
   NAN_EXPORT(target, onPacket);
@@ -120,6 +105,7 @@ NAN_MODULE_INIT(Init) {
   NAN_EXPORT(target, openDevice);
   NAN_EXPORT(target, beginSniffing);
   NAN_EXPORT(target, closeDevice);
+  NAN_EXPORT(target, runCallbackBuffer);
 }
 
 NODE_MODULE(addon, Init)

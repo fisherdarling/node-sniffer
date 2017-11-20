@@ -1,6 +1,6 @@
-var addon = require("./build/Release/addon");
+var addon = require("./build/Release/sniffer");
 
-addon.setCallback(arg => {
+addon.onPacket(arg => {
   var buffer = Buffer.from(arg);
   console.log(buffer);
 });
