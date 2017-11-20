@@ -1,7 +1,7 @@
-// #include <addon.h>
+#include <addon.h>
 #include <nan.h>
 #include <node.h>
-// #include <pcap.h>
+#include <pcap.h>
 #include <iostream>
 
 using namespace v8;
@@ -78,6 +78,12 @@ NAN_METHOD(beginSniffing) {}
 // in order to sniff on the device the next time.
 NAN_METHOD(closeDevice) {}
 
+// Returns the pcap version being used.
+NAN_METHOD(pcapVersion) {
+  std::string version(pcap_lib_version());
+  info.GetReturnValue().Set(New<String>(version).ToLocalChecked());
+}
+
 NAN_METHOD(runCallbackBuffer) {
   u_int size = 32;
   char *buff = new char[32];
@@ -105,6 +111,7 @@ NAN_MODULE_INIT(Init) {
   NAN_EXPORT(target, openDevice);
   NAN_EXPORT(target, beginSniffing);
   NAN_EXPORT(target, closeDevice);
+  NAN_EXPORT(target, pcapVersion);
   NAN_EXPORT(target, runCallbackBuffer);
 }
 

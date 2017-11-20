@@ -64,6 +64,8 @@ NAN_METHOD(beginSniffing);
 // Closes the device being sniffed on.
 NAN_METHOD(closeDevice);
 
+NAN_METHOD(pcapVersion);
+
 NAN_MODULE_INIT(Init);
 
 }  // namespace addon
