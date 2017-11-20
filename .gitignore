@@ -6,3 +6,5 @@ build/
 node_modules/nan/
 
 \.vscode/
+
+sniffing-template\.cpp
