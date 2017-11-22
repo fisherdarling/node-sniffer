@@ -56,15 +56,15 @@ NAN_METHOD(getDevProperties);
 
 // Compiles and opens the chosen device. If no device is given, opens the
 // first available system device.
-NAN_METHOD(openDevice);
+NAN_METHOD(openDev);
 
 // Begins listening on the opened device.
-NAN_METHOD(beginSniffing);
+NAN_METHOD(sniff);
 
 // Closes the device being sniffed on.
-NAN_METHOD(closeDevice);
+NAN_METHOD(closeDev);
 
-NAN_METHOD(pcapVersion);
+NAN_METHOD(version);
 
 NAN_MODULE_INIT(Init);
 
