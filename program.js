@@ -1,8 +1,27 @@
-var addon = require("./build/Release/addon");
+var sniffer = require("./build/Release/sniffer");
 
-addon.setCallback(arg => {
+// console.log(sniffer);
+// console.log();
+
+var numPackets = 1;
+
+console.log(sniffer.version() + "\n");
+
+sniffer.onPacket(arg => {
   var buffer = Buffer.from(arg);
-  console.log(buffer);
+  console.log(
+    "New Packet (" + numPackets + ")! Length: " + buffer.length + "\n"
+  );
+  numPackets += 1;
+
+  if (numPackets > 10) {
+    sniffer.closeDev();
+  }
 });
 
-addon.runCallbackBuffer();
+sniffer.setFilter("tcp");
+sniffer.setDevice();
+sniffer.openDev();
+sniffer.sniff();
+
+// sniffer.runCallbackBuffer();
