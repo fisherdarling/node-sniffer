@@ -11,6 +11,8 @@ Callback *cb;
 
 namespace addon {
 
+int numPackets;
+
 // TODO: Implement runCallback to return packet data.
 // void runCallback(const struct pcap_pkthdr *header, const u_char *packet);
 
@@ -42,7 +44,6 @@ NAN_METHOD(onPacket) {
     ThrowSyntaxError("onPacket() requires 1 argument.");
     return;
   }
-
   // Check that the argument is a function.
   if (!info[0]->IsFunction()) {
     ThrowSyntaxError("onPacket() requires a callback function.");
@@ -66,15 +67,11 @@ void packetCallbackHandle(unsigned char *args, const struct pcap_pkthdr *header,
   std::cout << "Size: " << size << std::endl;
 
   // Create the buffer to pass.
-  Nan::MaybeLocal<v8::Object> packetData = Nan::NewBuffer(
+  Nan::MaybeLocal<v8::Object> packetData = Nan::CopyBuffer(
       reinterpret_cast<char *>(const_cast<unsigned char *>(packet)), size);
   // std::cout << "Deleting *packet." << std::endl;
 
   std::cout << "Buffer *: " << &packetData << std::endl;
-
-  // Nan::MaybeLocal<v8::Object> *bufferptr = &buffer;
-
-  // std::cout << bufferptr << std::endl;
 
   // TODO: Add support for passing some sort of Packet object.
 
@@ -83,7 +80,7 @@ void packetCallbackHandle(unsigned char *args, const struct pcap_pkthdr *header,
 
   std::cout << "Executing callback..." << std::endl;
   cb->Call(argc, argv);
-  delete *packetData.ToLocalChecked();
+  // delete *packetData.ToLocalChecked();
 }
 
 // Takes a string input and sets the filter string from that input.
@@ -170,16 +167,16 @@ NAN_METHOD(openDev) {
 
 // Begins sniffing on the set device.
 NAN_METHOD(sniff) {
-  int numPackets = -1;
+  int numPackets = 10;
 
-  if (info.Length() == 1) {
-    if (info[0]->IsNumber())
-      numPackets = info[0]->IntegerValue();
-    else
-      ThrowSyntaxError(
-          "sniff() requires either no arguments or a single argument; the "
-          "number of packets to capture.");
-  }
+  // if (info.Length() == 1) {
+  //   if (info[0]->IsNumber())
+  //     numPackets = info[0]->IntegerValue();
+  //   else
+  //     ThrowSyntaxError(
+  //         "sniff() requires either no arguments or a single argument; the "
+  //         "number of packets to capture.");
+  // }
 
   std::cout << "Capturing " << numPackets << " packets." << std::endl;
 

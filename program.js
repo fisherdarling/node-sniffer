@@ -14,9 +14,9 @@ sniffer.onPacket(arg => {
   );
   numPackets += 1;
 
-  if (numPackets > 10) {
-    sniffer.closeDev();
-  }
+  // if (numPackets > 10) {
+  //   sniffer.closeDev();
+  // }
 });
 
 sniffer.setFilter("tcp");
