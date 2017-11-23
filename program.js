@@ -13,10 +13,6 @@ sniffer.onPacket(arg => {
     "New Packet (" + numPackets + ")! Length: " + buffer.length + "\n"
   );
   numPackets += 1;
-
-  // if (numPackets > 10) {
-  //   sniffer.closeDev();
-  // }
 });
 
 sniffer.setFilter("tcp");
