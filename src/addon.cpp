@@ -93,6 +93,12 @@ NAN_METHOD(setFilter) {
 // Returns a list of strings the available system devices.
 NAN_METHOD(getDevices) {
     // std::string devices(pcap_findalldevs());
+
+    Local<Array> arr = Array::New(info.GetIsolate(), 1);
+
+    arr->Set(Nan::New("value").ToLocalChecked(), Nan::New(1337));
+
+    info.GetReturnValue().Set(arr);
 }
 
 // TODO: Allow listening to any given device.
