@@ -92,13 +92,30 @@ NAN_METHOD(setFilter) {
 // TODO: Figure out how to get a list of devices.
 // Returns a list of strings the available system devices.
 NAN_METHOD(getDevices) {
-    // std::string devices(pcap_findalldevs());
+    Local<Array> retArr = Array::New(info.GetIsolate());
 
-    Local<Array> arr = Array::New(info.GetIsolate(), 1);
+    pcap_if_t* deviceList;
 
-    arr->Set(Nan::New("value").ToLocalChecked(), Nan::New(1337));
+    pcap_findalldevs(&deviceList, err);
 
-    info.GetReturnValue().Set(arr);
+    int index = 0;
+    for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
+        Local<Array> devInfoArr = Array::New(info.GetIsolate());
+
+        const char* devDesc = curr->description == NULL ? "" : curr->description;
+
+        devInfoArr->Set(Nan::New("desc").ToLocalChecked(), Nan::New(devDesc).ToLocalChecked());
+
+        // devInfoArr->Set(Nan::New("desc").ToLocalChecked(), Nan::New(curr->description).ToLocalChecked());
+        // retArr->Set(Nan::New(std::to_string(index) + "a").ToLocalChecked(), devInfoArr);
+        retArr->Set(Nan::New(curr->name).ToLocalChecked(), devInfoArr);
+        // retArr->Set(Nan::New(curr->name).ToLocalChecked(), devInfoArr);
+
+        index++;
+    }
+
+    info.GetReturnValue().Set(retArr);
+    // retArr->Set(Nan::New("wlp20o").ToLocalChecked(), Array::New(info.GetIsolate()));
 }
 
 // TODO: Allow listening to any given device.

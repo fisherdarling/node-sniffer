@@ -5,7 +5,7 @@ var sniffer = require("./build/Release/sniffer");
 
 var arr = sniffer.getDevices();
 
-console.log(arr["value"]);
+console.log(arr);
 
 // var numPackets = 1;
 
