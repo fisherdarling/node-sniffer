@@ -11,8 +11,6 @@ Callback* cb;
 
 namespace addon {
 
-int numPackets;
-
 // TODO: Implement runCallback to return packet data.
 // void runCallback(const struct pcap_pkthdr *header, const u_char *packet);
 
@@ -98,24 +96,61 @@ NAN_METHOD(getDevices) {
 
     pcap_findalldevs(&deviceList, err);
 
-    int index = 0;
+    // int index = 0;
     for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
-        Local<Array> devInfoArr = Array::New(info.GetIsolate());
+        if (curr != NULL) {
+            const char* devName = curr->name != NULL ? curr->name : "";
 
-        const char* devDesc = curr->description == NULL ? "" : curr->description;
+            // std::cout << devName << std::endl;
 
-        devInfoArr->Set(Nan::New("desc").ToLocalChecked(), Nan::New(devDesc).ToLocalChecked());
+            Local<Array> dataArr = proccessDevice(curr, info.GetIsolate());
 
-        // devInfoArr->Set(Nan::New("desc").ToLocalChecked(), Nan::New(curr->description).ToLocalChecked());
-        // retArr->Set(Nan::New(std::to_string(index) + "a").ToLocalChecked(), devInfoArr);
-        retArr->Set(Nan::New(curr->name).ToLocalChecked(), devInfoArr);
-        // retArr->Set(Nan::New(curr->name).ToLocalChecked(), devInfoArr);
+            // Nan::Utf8String dataString(dataArr->ToDetailString());
 
-        index++;
+            // std::cout << std::string(*dataString) << std::endl;
+
+            retArr->Set(Nan::New(devName).ToLocalChecked(), dataArr);
+            // retArr->Set(Nan::New(curr->name).ToLocalChecked(), devInfoArr);
+
+            // std::cout << "Set value." << std::endl;
+        }
+        // index++;
     }
 
     info.GetReturnValue().Set(retArr);
     // retArr->Set(Nan::New("wlp20o").ToLocalChecked(), Array::New(info.GetIsolate()));
+}
+
+Local<Array> proccessDevice(pcap_if_t* dev, Isolate* iso) {
+    Local<Array> retArr = Array::New(iso);
+
+    // Get the device description.
+    const char* devDesc = dev->description != NULL ? dev->description : "";
+
+    // // Get and set the device flags.
+    bpf_u_int32 flags = dev->flags;
+    Local<Array> flagData = Array::New(iso);
+    int index = 0;
+
+    if ((flags & 1) == 1) {
+        flagData->Set(index, Nan::New("loopback").ToLocalChecked());
+        index++;
+    }
+
+    if ((flags & 2) == 2) {
+        flagData->Set(index, Nan::New("up").ToLocalChecked());
+        index++;
+    }
+
+    if ((flags & 4) == 4) {
+        flagData->Set(index, Nan::New("running").ToLocalChecked());
+        index++;
+    }
+
+    retArr->Set(Nan::New("desc").ToLocalChecked(), Nan::New(devDesc).ToLocalChecked());
+    retArr->Set(Nan::New("flags").ToLocalChecked(), flagData);
+
+    return retArr;
 }
 
 // TODO: Allow listening to any given device.

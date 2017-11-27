@@ -9,10 +9,10 @@
 namespace addon {
 
 // The handle that controls the current listening session.
-pcap_t *handle;
+pcap_t* handle;
 
 // The device that will be listened on.
-char *device;
+char* device;
 
 // Any error message from libpcap.
 char err[PCAP_ERRBUF_SIZE];
@@ -35,8 +35,7 @@ void runCallback();
 // Sets the callback to be executed on a new packet.
 NAN_METHOD(onPacket);
 
-void packetCallbackHandle(unsigned char *, const struct pcap_pkthdr *,
-                          const unsigned char *);
+void packetCallbackHandle(unsigned char*, const struct pcap_pkthdr*, const unsigned char*);
 
 // Sets the filter that the packets will be filtered against.
 NAN_METHOD(setFilter);
@@ -44,6 +43,8 @@ NAN_METHOD(setFilter);
 // Returns a list of devices that can be listened on, null if there are no
 // avaliable devices.
 NAN_METHOD(getDevices);
+
+v8::Local<v8::Array> proccessDevice(pcap_if_t*, v8::Isolate*);
 
 // Set the device to listen on.
 NAN_METHOD(setDevice);
