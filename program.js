@@ -3,9 +3,11 @@ var sniffer = require("./build/Release/sniffer");
 // console.log(sniffer);
 // console.log();
 
-var arr = sniffer.getDevices();
+// var arr = Array.from(sniffer.getDevices());
+var arr = Array.from(sniffer.getDevices());
 
-console.log(arr);
+// console.log(typeof arr);
+// console.log(arr);
 
 // var numPackets = 1;
 
@@ -21,6 +23,8 @@ console.log(arr);
 
 // sniffer.setFilter("tcp");
 // sniffer.setDevice();
+
+// console.log(JSON.stringify(sniffer.getDevProperties()));
 // sniffer.openDev();
 // sniffer.sniff();
 

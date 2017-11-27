@@ -90,29 +90,37 @@ NAN_METHOD(setFilter) {
 // TODO: Figure out how to get a list of devices.
 // Returns a list of strings the available system devices.
 NAN_METHOD(getDevices) {
-    Local<Array> retArr = Array::New(info.GetIsolate());
 
     pcap_if_t* deviceList;
 
     pcap_findalldevs(&deviceList, err);
 
+    // int size = 0;
+    // for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
+    //     if (curr != NULL) size++;
+    // }
+
+    Local<Object> retArr = Array::New(info.GetIsolate());
+    // Local<Array> retArr = Array::New(info.GetIsolate(), size);
     // int index = 0;
+    int i = 0;
     for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
         if (curr != NULL) {
-            const char* devName = curr->name != NULL ? curr->name : "";
+            // const char* devName = curr->name != NULL ? curr->name : "";
 
             // std::cout << devName << std::endl;
 
-            Local<Array> dataArr = proccessDevice(curr, info.GetIsolate());
+            Local<Object> devObj = proccessDevice(curr, info.GetIsolate());
 
             // Nan::Utf8String dataString(dataArr->ToDetailString());
 
             // std::cout << std::string(*dataString) << std::endl;
 
-            retArr->Set(Nan::New(devName).ToLocalChecked(), dataArr);
+            retArr->Set(i, devObj);
             // retArr->Set(Nan::New(curr->name).ToLocalChecked(), devInfoArr);
 
             // std::cout << "Set value." << std::endl;
+            i++;
         }
         // index++;
     }
@@ -121,8 +129,8 @@ NAN_METHOD(getDevices) {
     // retArr->Set(Nan::New("wlp20o").ToLocalChecked(), Array::New(info.GetIsolate()));
 }
 
-Local<Array> proccessDevice(pcap_if_t* dev, Isolate* iso) {
-    Local<Array> retArr = Array::New(iso);
+Local<Object> proccessDevice(pcap_if_t* dev, Isolate* iso) {
+    Local<Object> retObj = Object::New(iso);
 
     // Get the device description.
     const char* devDesc = dev->description != NULL ? dev->description : "";
@@ -130,8 +138,8 @@ Local<Array> proccessDevice(pcap_if_t* dev, Isolate* iso) {
     // // Get and set the device flags.
     bpf_u_int32 flags = dev->flags;
     Local<Array> flagData = Array::New(iso);
-    int index = 0;
 
+    int index = 0;
     if ((flags & 1) == 1) {
         flagData->Set(index, Nan::New("loopback").ToLocalChecked());
         index++;
@@ -147,10 +155,15 @@ Local<Array> proccessDevice(pcap_if_t* dev, Isolate* iso) {
         index++;
     }
 
-    retArr->Set(Nan::New("desc").ToLocalChecked(), Nan::New(devDesc).ToLocalChecked());
-    retArr->Set(Nan::New("flags").ToLocalChecked(), flagData);
+    retObj->Set(Nan::New("name").ToLocalChecked(), Nan::New(dev->name).ToLocalChecked());
 
-    return retArr;
+    // Set the description.
+    retObj->Set(Nan::New("desc").ToLocalChecked(), Nan::New(devDesc).ToLocalChecked());
+
+    // Set the flags.
+    retObj->Set(Nan::New("flags").ToLocalChecked(), flagData);
+
+    return retObj;
 }
 
 // TODO: Allow listening to any given device.
@@ -190,7 +203,34 @@ void initDevice() { pcap_lookupnet(device, &ip, &netmask, err); }
 
 // Returns a dictionary of the 'name', 'ip', and 'netmask' of the given
 // device.
-NAN_METHOD(getDevProperties) {}
+NAN_METHOD(getDevProperties) {
+
+    // Check if device is null or empty.
+    if (device == NULL || std::string(device).length() == 0) {
+        ThrowError("Device does not exist or is empty.");
+        return;
+    }
+
+    // Create the return array.
+    Local<Array> devStats = Array::New(info.GetIsolate(), 3);
+
+    // Set the device name.
+    devStats->Set(Nan::New("name").ToLocalChecked(), Nan::New(device).ToLocalChecked());
+
+    // Convert and set the device ip.
+    struct in_addr addr;
+    addr.s_addr = ip;
+    char* ipString = inet_ntoa(addr);
+    devStats->Set(Nan::New("ip").ToLocalChecked(), Nan::New(ipString).ToLocalChecked());
+
+    // Convert and set the device netmask.
+    struct in_addr nmaddr;
+    nmaddr.s_addr = netmask;
+    char* nmString = inet_ntoa(nmaddr);
+    devStats->Set(Nan::New("netmask").ToLocalChecked(), Nan::New(nmString).ToLocalChecked());
+
+    info.GetReturnValue().Set(devStats);
+}
 
 // TODO: Check for failures.
 // Opens the device and creates its handle. The filter is compiled in this

@@ -44,7 +44,7 @@ NAN_METHOD(setFilter);
 // avaliable devices.
 NAN_METHOD(getDevices);
 
-v8::Local<v8::Array> proccessDevice(pcap_if_t*, v8::Isolate*);
+v8::Local<v8::Object> proccessDevice(pcap_if_t*, v8::Isolate*);
 
 // Set the device to listen on.
 NAN_METHOD(setDevice);
