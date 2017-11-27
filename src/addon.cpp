@@ -95,38 +95,20 @@ NAN_METHOD(getDevices) {
 
     pcap_findalldevs(&deviceList, err);
 
-    // int size = 0;
-    // for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
-    //     if (curr != NULL) size++;
-    // }
-
     Local<Object> retArr = Array::New(info.GetIsolate());
-    // Local<Array> retArr = Array::New(info.GetIsolate(), size);
-    // int index = 0;
     int i = 0;
     for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
         if (curr != NULL) {
-            // const char* devName = curr->name != NULL ? curr->name : "";
-
-            // std::cout << devName << std::endl;
-
+            // Get the device's data object.
             Local<Object> devObj = proccessDevice(curr, info.GetIsolate());
 
-            // Nan::Utf8String dataString(dataArr->ToDetailString());
-
-            // std::cout << std::string(*dataString) << std::endl;
-
+            // Set it at its index.
             retArr->Set(i, devObj);
-            // retArr->Set(Nan::New(curr->name).ToLocalChecked(), devInfoArr);
-
-            // std::cout << "Set value." << std::endl;
             i++;
         }
-        // index++;
     }
 
     info.GetReturnValue().Set(retArr);
-    // retArr->Set(Nan::New("wlp20o").ToLocalChecked(), Array::New(info.GetIsolate()));
 }
 
 Local<Object> proccessDevice(pcap_if_t* dev, Isolate* iso) {
@@ -176,20 +158,23 @@ NAN_METHOD(setDevice) {
         return;
     }
 
+    // If an argument was supplied.
     if (info.Length() == 1) {
+        // If said argument is a string.
         if (info[0]->IsString()) {
             Nan::Utf8String param1(info[0]->ToString());
             device = const_cast<char*>(std::string(*param1).c_str());
             std::cout << "Setting defined device: " << device << std::endl;
-        } else {
+        } else {  // Argument wasn't a string.
             ThrowTypeError("setDevice() requires string arguments.");
             return;
         }
-    } else {
+    } else {  // 0 arguments supplied, set device to first available.
         device = pcap_lookupdev(err);
         std::cout << "Setting default device: " << device << std::endl;
     }
 
+    // Device failed to be created.
     if (device == NULL) {
         ThrowError("Device could not be found.");
         return;
@@ -201,8 +186,8 @@ NAN_METHOD(setDevice) {
 // Creates and initializes the set device.
 void initDevice() { pcap_lookupnet(device, &ip, &netmask, err); }
 
-// Returns a dictionary of the 'name', 'ip', and 'netmask' of the given
-// device.
+// Returns a dictionary object of the 'name', 'ip',
+// and 'netmask' of the given device.
 NAN_METHOD(getDevProperties) {
 
     // Check if device is null or empty.
