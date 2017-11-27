@@ -3,25 +3,29 @@ var sniffer = require("./build/Release/sniffer");
 // console.log(sniffer);
 // console.log();
 
-var numPackets = 1;
+// var arr = Array.from(sniffer.getDevices());
+var arr = Array.from(sniffer.getDevices());
 
-console.log(sniffer.version() + "\n");
+// console.log(typeof arr);
+// console.log(arr);
 
-sniffer.onPacket(arg => {
-  var buffer = Buffer.from(arg);
-  console.log(
-    "New Packet (" + numPackets + ")! Length: " + buffer.length + "\n"
-  );
-  numPackets += 1;
+// var numPackets = 1;
 
-  if (numPackets > 10) {
-    sniffer.closeDev();
-  }
-});
+// console.log(sniffer.version() + "\n");
 
-sniffer.setFilter("tcp");
-sniffer.setDevice();
-sniffer.openDev();
-sniffer.sniff();
+// sniffer.onPacket(arg => {
+//   var buffer = Buffer.from(arg);
+//   console.log(
+//     "New Packet (" + numPackets + ")! Length: " + buffer.length + "\n"
+//   );
+//   numPackets += 1;
+// });
+
+// sniffer.setFilter("tcp");
+// sniffer.setDevice();
+
+// console.log(JSON.stringify(sniffer.getDevProperties()));
+// sniffer.openDev();
+// sniffer.sniff();
 
 // sniffer.runCallbackBuffer();
