@@ -81,22 +81,20 @@ void packetCallbackHandle(unsigned char* args, const struct pcap_pkthdr* header,
 // Takes a string input and sets the filter string from that input.
 NAN_METHOD(setFilter) {
     // Check if an argument was passed.
-    if(info.Length() == 1) {
+    if (info.Length() == 1) {
         // Check if the passed argmuent is a string.
-        if(info[0]->IsString()) {
+        if (info[0]->IsString()) {
             Nan::Utf8String param1(info[0]->ToString());
             filterString = std::string(*param1);
-            info.GetReturnValue().SetEmpty();
+            info.GetReturnValue().SetEmptyString();
             return;
-        // Else set it to the default filter, ""
+            // Else set it to the default filter, ""
         } else {
             filterString = "";
-            info.GetReturnValue().SetEmpty();
+            info.GetReturnValue().SetEmptyString();
             return;
         }
     }
-
-
 }
 
 // Returns a list of strings the available system devices.
@@ -108,10 +106,10 @@ NAN_METHOD(getDevices) {
     // Get the devices.
     pcap_findalldevs(&deviceList, err);
 
-    // TODO: Refactor to object? Find the length? 
+    // TODO: Refactor to object? Find the length?
     Local<Object> retArr = Array::New(info.GetIsolate());
-    
-    int i = 0; // Array index.
+
+    int i = 0;  // Array index.
     for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
         if (curr != NULL) {
             // Get the device's data object.
@@ -299,14 +297,10 @@ NAN_METHOD(sniff) {
 
 // Closes the device and removes the handle. openDevice needs to be called
 // again in order to sniff on the device the next time.
-NAN_METHOD(closeDev) {
-    pcap_breakloop(handle);
-}
+NAN_METHOD(closeDev) { pcap_breakloop(handle); }
 
 // Returns the pcap version being used.
-NAN_METHOD(version) {
-    info.GetReturnValue().Set(New<String>(vers).ToLocalChecked());
-}
+NAN_METHOD(version) { info.GetReturnValue().Set(New<String>(pcap_lib_version()).ToLocalChecked()); }
 
 NAN_MODULE_INIT(Init) {
     NAN_EXPORT(target, onPacket);
