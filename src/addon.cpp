@@ -11,7 +11,6 @@ Callback* cb;
 
 namespace addon {
 
-// TODO: Implement runCallback to return packet data.
 // void runCallback(const struct pcap_pkthdr *header, const u_char *packet);
 
 // Executes the user-defined callback. Currently implemented is a skeleton
@@ -35,7 +34,6 @@ void runCallback() {
 }
 
 // Sets the callback to be executed on a callback.
-// TODO: Implement argument parsing and runtime errors.
 NAN_METHOD(onPacket) {
     // Check for the correct number of arguments.
     if (info.Length() != 1) {
@@ -82,21 +80,38 @@ void packetCallbackHandle(unsigned char* args, const struct pcap_pkthdr* header,
 
 // Takes a string input and sets the filter string from that input.
 NAN_METHOD(setFilter) {
-    // TODO: Check for a single string as argument.
-    Nan::Utf8String param1(info[0]->ToString());
-    filterString = std::string(*param1);
+    // Check if an argument was passed.
+    if(info.Length() == 1) {
+        // Check if the passed argmuent is a string.
+        if(info[0]->IsString()) {
+            Nan::Utf8String param1(info[0]->ToString());
+            filterString = std::string(*param1);
+            info.GetReturnValue().SetEmpty();
+            return;
+        // Else set it to the default filter, ""
+        } else {
+            filterString = "";
+            info.GetReturnValue().SetEmpty();
+            return;
+        }
+    }
+
+
 }
 
-// TODO: Figure out how to get a list of devices.
 // Returns a list of strings the available system devices.
 NAN_METHOD(getDevices) {
 
+    // Pointer to the first potential device.
     pcap_if_t* deviceList;
 
+    // Get the devices.
     pcap_findalldevs(&deviceList, err);
 
+    // TODO: Refactor to object? Find the length? 
     Local<Object> retArr = Array::New(info.GetIsolate());
-    int i = 0;
+    
+    int i = 0; // Array index.
     for (pcap_if_t* curr = deviceList; curr; curr = curr->next) {
         if (curr != NULL) {
             // Get the device's data object.
@@ -111,6 +126,7 @@ NAN_METHOD(getDevices) {
     info.GetReturnValue().Set(retArr);
 }
 
+// Returns a JS Object with properties of the sent device's value.
 Local<Object> proccessDevice(pcap_if_t* dev, Isolate* iso) {
     Local<Object> retObj = Object::New(iso);
 
@@ -122,21 +138,26 @@ Local<Object> proccessDevice(pcap_if_t* dev, Isolate* iso) {
     Local<Array> flagData = Array::New(iso);
 
     int index = 0;
+
+    // "loopback" flag.
     if ((flags & 1) == 1) {
         flagData->Set(index, Nan::New("loopback").ToLocalChecked());
         index++;
     }
 
+    // "up" flag.
     if ((flags & 2) == 2) {
         flagData->Set(index, Nan::New("up").ToLocalChecked());
         index++;
     }
 
+    // "running" flag.
     if ((flags & 4) == 4) {
         flagData->Set(index, Nan::New("running").ToLocalChecked());
         index++;
     }
 
+    // Set the device name.
     retObj->Set(Nan::New("name").ToLocalChecked(), Nan::New(dev->name).ToLocalChecked());
 
     // Set the description.
@@ -262,6 +283,7 @@ NAN_METHOD(openDev) {
 NAN_METHOD(sniff) {
     int numPackets = -1;
 
+    // Check that only one argument was given.
     if (info.Length() == 1) {
         if (info[0]->IsNumber())
             numPackets = info[0]->IntegerValue();
@@ -271,42 +293,20 @@ NAN_METHOD(sniff) {
             "number of packets to capture.");
     }
 
-    std::cout << "Capturing " << numPackets << " packets." << std::endl;
-
+    // Start sniffing.
     pcap_loop(handle, numPackets, packetCallbackHandle, NULL);
 }
 
 // Closes the device and removes the handle. openDevice needs to be called
 // again in order to sniff on the device the next time.
 NAN_METHOD(closeDev) {
-    // std::cout << "Breaking the loop..." << std::endl;
     pcap_breakloop(handle);
-    // std::cout << "Loop broken..." << std::endl;
 }
 
 // Returns the pcap version being used.
 NAN_METHOD(version) {
-    std::string vers(pcap_lib_version());
     info.GetReturnValue().Set(New<String>(vers).ToLocalChecked());
 }
-
-// NAN_MOD(runCallbackBuffer) {
-//   u_int size = 32;
-//   char *buff = new char[32];
-
-//   for (size_t i = 0; i < size; i++) buff[i] = rand() % 256;
-
-//   Nan::MaybeLocal<v8::Object> buffer = Nan::NewBuffer(buff, 32);
-
-//   Nan::MaybeLocal<v8::Object> *bufferptr = &buffer;
-
-//   std::cout << bufferptr << std::endl;
-
-//   const unsigned int argc = 1;                      // Arg count.
-//   Local<Value> argv[] = {buffer.ToLocalChecked()};  // Arg values.
-
-//   cb->Call(argc, argv);
-// }
 
 NAN_MODULE_INIT(Init) {
     NAN_EXPORT(target, onPacket);
@@ -318,7 +318,6 @@ NAN_MODULE_INIT(Init) {
     NAN_EXPORT(target, sniff);
     NAN_EXPORT(target, closeDev);
     NAN_EXPORT(target, version);
-    // NAN_EXPORT(target, runCallbackBuffer);
 }
 
 NODE_MODULE(addon, Init)
