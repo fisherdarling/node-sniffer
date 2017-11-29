@@ -25,7 +25,7 @@ void runCallback() {
 
     Nan::MaybeLocal<v8::Object>* bufferptr = &buffer;
 
-    std::cout << bufferptr << std::endl;
+    // std::cout << bufferptr << std::endl;
 
     const unsigned int argc = 1;                        // Arg count.
     Local<Value> argv[] = { buffer.ToLocalChecked() };  // Arg values.
@@ -59,21 +59,21 @@ void packetCallbackHandle(unsigned char* args, const struct pcap_pkthdr* header,
 
     // Get the length of the capture.
     u_int size = header->caplen;
-    std::cout << "Size: " << size << std::endl;
+    // std::cout << "Size: " << size << std::endl;
 
     // Create the buffer to pass.
     Nan::MaybeLocal<v8::Object> packetData =
     Nan::CopyBuffer(reinterpret_cast<char*>(const_cast<unsigned char*>(packet)), size);
     // std::cout << "Deleting *packet." << std::endl;
 
-    std::cout << "Buffer *: " << &packetData << std::endl;
+    // std::cout << "Buffer *: " << &packetData << std::endl;
 
     // TODO: Add support for passing some sort of Packet object.
 
     const unsigned int argc = 1;                            // Arg count.
     Local<Value> argv[] = { packetData.ToLocalChecked() };  // Arg values.
 
-    std::cout << "Executing callback..." << std::endl;
+    // std::cout << "Executing callback..." << std::endl;
     cb->Call(argc, argv);
     // delete *packetData.ToLocalChecked();
 }
@@ -183,14 +183,14 @@ NAN_METHOD(setDevice) {
         if (info[0]->IsString()) {
             Nan::Utf8String param1(info[0]->ToString());
             device = const_cast<char*>(std::string(*param1).c_str());
-            std::cout << "Setting defined device: " << device << std::endl;
+            // std::cout << "Setting defined device: " << device << std::endl;
         } else {  // Argument wasn't a string.
             ThrowTypeError("setDevice() requires string arguments.");
             return;
         }
     } else {  // 0 arguments supplied, set device to first available.
         device = pcap_lookupdev(err);
-        std::cout << "Setting default device: " << device << std::endl;
+        // std::cout << "Setting default device: " << device << std::endl;
     }
 
     // Device failed to be created.

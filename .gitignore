@@ -10,3 +10,5 @@ node_modules/nan/
 sniffing-template\.cpp
 
 \.clang-format
+
+node_modules/binary-parser/

@@ -31,11 +31,17 @@ major networking protocols, including ipv6.
    $ node-gyp install
    ```
 
-3. Build the addon from the root directory:
+3. Install the required packages.
+
+   ```
+   npm install
+   ```
+
+4. Build the addon from the root directory:
    ```
    $ node-gyp rebuild
    ```
-4. `require` the addon in your javascript code:
+5. `require` the addon in your javascript code:
 
    ```javascript
    var sniffer = require("./build/Release/sniffer");
