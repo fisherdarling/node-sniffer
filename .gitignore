@@ -12,3 +12,11 @@ sniffing-template\.cpp
 \.clang-format
 
 node_modules/binary-parser/
+
+node_modules/\.bin/tsserver
+
+node_modules/typescript/
+
+node_modules/@types/node/
+
+node_modules/\.bin/
