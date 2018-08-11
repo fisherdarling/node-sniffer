@@ -1,54 +1,63 @@
 # node-sniffer
 
-_node-sniffer_ will provide up-to-date bindings for the libpcap and WinPcap c
-libraries. Support for this project will be long-term, with goals to support the
-major networking protocols, including ipv6.
+_node-sniffer_ provides primitive bindings to libpcap. The future goal for this project is to create a fast sniffing library for the nodejs ecosystem.
 
-### Prerequisites
+## Prerequisites
 
 ---
 
-1. Linux system.
-2. `nodejs`.
-3. `libpcap` c library.
-4. `build-tools` package must be installed (make, gcc, etc.).
-5. `node-gyp` npm package.
-   ```
-   npm install node-gyp -g
-   ```
+1.  Linux system
+2.  `nodejs`
+3.  `libpcap` library.
+4.  `build-tools` (make, gcc, etc.)
+5.  `node-gyp` npm package
+
+    ```
+    npm install node-gyp -g
+    ```
 
 ## Installation
 
 ---
 
-1. Clone the repository:
-   ```
-   $ git clone https://github.com/harpo109/node-sniffer.git
-   ```
-2. Install the node headers:
+1.  Clone the repository:
 
-   ```
-   $ node-gyp install
-   ```
+    ```
+    $ git clone https://github.com/fisherdarling/node-sniffer.git
+    ```
 
-3. Build the addon from the root directory:
-   ```
-   $ node-gyp rebuild
-   ```
-4. `require` the addon in your javascript code:
+2.  Install the build-dependencies (nan)
 
-   ```javascript
-   var sniffer = require("./build/Release/sniffer");
-   ```
+    ```
+    $ npm install
+    ```
+
+3.  Install the node headers:
+
+    ```
+    $ node-gyp install
+    ```
+
+4.  Build the addon from the root directory:
+
+    ```
+    $ node-gyp rebuild
+    ```
+
+5.  `require` the addon in your javascript code:
+
+    ```javascript
+    var sniffer = require("./build/Release/sniffer");
+    ```
 
 ## Usage
 
 ---
 
 _node-sniffer_ requires a callback to be defined before sniffing can begin. This
-callback will recieve the raw Packet information in the form of a Node Buffer.
+callback will recieve the raw Packet information in the form of a Node Buffer. Any program must be run with sufficient privaledges to sniff on the given device. i.e. `sudo node program.js`
 
-### Example code:
+### Example code (from program.js):
 
 ```javascript
 var sniffer = require("./build/Release/sniffer");
@@ -57,30 +66,35 @@ console.log(sniffer.version() + "\n");
 // Set the packet callback.
 sniffer.onPacket(arg => {
   var packet = Buffer.from(arg);
+  console.log(packet);
   // Do something with the packet...
 });
 
 // Set the filter to filter the incoming packets with.
 // See the libpcap filter page for help.
 sniffer.setFilter("tcp");
+console.log("Set Filter");
 
 // Set the device. No argument will set the first available device.
 sniffer.setDevice();
+console.log("Set Device");
 
 // Open and prepare the device to be sniffed.
 // Compiles the filter in this call.
 sniffer.openDev();
+console.log("Opened Device.");
 
 // Start sniffing the device until closeDev() is called. An integer argument will
 // sniff that number of packets.
-sniffer.sniff();
+sniffer.sniff(10);
+console.log("Finished Sniffing!");
 ```
 
 ## Contributors
 
 ---
 
-[Fisher Darling](https://github.com/harpo109) - _Main Author_
+- [Fisher Darling](https://github.com/fisherdarling)
 
 ## License
 
@@ -89,7 +103,7 @@ sniffer.sniff();
 ```
 MIT License
 
-Copyright (c) 2017 Fisher Darling
+Copyright (c) 2018 Fisher Darling <fdarlingco@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

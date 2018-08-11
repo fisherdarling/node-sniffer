@@ -1,31 +1,30 @@
 var sniffer = require("./build/Release/sniffer");
+console.log(sniffer.version() + "\n");
 
-// console.log(sniffer);
-// console.log();
+// Set the packet callback.
+sniffer.onPacket(arg => {
+  var packet = Buffer.from(arg);
+  console.log(packet);
+  // Do something with the packet...
+});
 
-// var arr = Array.from(sniffer.getDevices());
-var arr = Array.from(sniffer.getDevices());
+// Set the filter to filter the incoming packets with.
+// See the libpcap filter page for help.
+sniffer.setFilter("tcp");
+console.log("Set Filter");
 
-// console.log(typeof arr);
-// console.log(arr);
+// Set the device. No argument will set the first available device.
+sniffer.setDevice();
+console.log("Set Device");
 
-// var numPackets = 1;
 
-// console.log(sniffer.version() + "\n");
+// Open and prepare the device to be sniffed.
+// Compiles the filter in this call.
+sniffer.openDev();
+console.log("Opened Device.");
 
-// sniffer.onPacket(arg => {
-//   var buffer = Buffer.from(arg);
-//   console.log(
-//     "New Packet (" + numPackets + ")! Length: " + buffer.length + "\n"
-//   );
-//   numPackets += 1;
-// });
 
-// sniffer.setFilter("tcp");
-// sniffer.setDevice();
-
-// console.log(JSON.stringify(sniffer.getDevProperties()));
-// sniffer.openDev();
-// sniffer.sniff();
-
-// sniffer.runCallbackBuffer();
+// Start sniffing the device until closeDev() is called. An integer argument will
+// sniff that number of packets.
+sniffer.sniff(10);
+console.log("Sniffing!");
